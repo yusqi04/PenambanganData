@@ -1,0 +1,63 @@
+DESKRIPSI KASUS DATA PREPROCESSING
+
+Nama Partner : Vanisa Eka Bela
+NIM          : 3022410005
+File Dataset : student_performance_preprocessing_issues.csv
+Ukuran Awal  : 153 baris x 13 kolom
+Variabel Target : exam_score
+
+
+1. GAMBARAN UMUM KASUS
+--------------------------------------------------------------------
+Dataset ini berisi data performa akademik siswa yang mencakup latar belakang keluarga, kebiasaan belajar sehari-hari, tingkat kehadiran, hingga nilai ujian. Data ini nantinya akan digunakan untuk membangun model prediksi nilai ujian akhir siswa (exam_score).
+
+Namun, kondisi data mentah pada file CSV masih memiliki berbagai permasalahan kualitas data, seperti penulisan yang tidak seragam, data kosong, duplikasi, hingga nilai yang tidak masuk akal. Oleh karena itu, diperlukan tahap data preprocessing untuk membersihkan dan menyiapkan dataset sebelum masuk ke proses pemodelan.
+
+
+2. STRUKTUR DAN DESKRIPSI KOLOM (13 KOLOM)
+--------------------------------------------------------------------
+1. student_id          : Nomor identitas unik untuk setiap siswa.
+2. gender              : Jenis kelamin siswa (Male, Female).
+3. parental_education  : Tingkat pendidikan terakhir orang tua (High School, Associate, Bachelor, Master).
+4. lunch_type          : Jenis paket makan siang di sekolah (Standard, Free/Reduced).
+5. test_preparation    : Status keikutsertaan bimbingan persiapan ujian (None, Completed).
+                         *Catatan: Nilai "None" menandakan siswa tidak mengikuti bimbingan ujian, sehingga merupakan kategori yang valid dan bukan missing value.
+6. internet_access     : Ketersediaan akses internet di rumah (Yes, No).
+7. motivation_level    : Tingkat motivasi belajar siswa (Low, Medium, High).
+8. school_type         : Jenis sekolah (Public, Private).
+9. study_hours_per_day : Rata-rata durasi belajar per hari dalam jam (rentang logis: 0 - 16 jam).
+10. attendance_percent : Persentase kehadiran siswa di kelas (rentang logis: 0 - 100%).
+11. sleep_hours        : Rata-rata durasi tidur per hari dalam jam (rentang logis: 2 - 14 jam).
+12. previous_score     : Nilai ujian sebelumnya (rentang logis: 0 - 100).
+13. exam_score         : Nilai ujian akhir sebagai variabel target (rentang logis: 0 - 100).
+
+
+3. PERMASALAHAN DATA YANG PERLU DITANGANI
+--------------------------------------------------------------------
+Berdasarkan pengecekan awal pada dataset mentah, terdapat beberapa permasalahan yang harus diselesaikan:
+
+a. Data Duplikat
+   Terdapat beberapa baris data yang tercatat ganda secara identik, termasuk pada kolom student_id. Baris duplikat ini perlu dihapus agar tidak menimbulkan bias pada hasil analisis.
+
+b. Inkonsistensi Penulisan Kategori dan Typo
+   Penulisan nilai pada kolom kategorikal tidak seragam, baik dari segi penggunaan huruf kapital (seperti "male", "FEMALE", dan "Female") maupun adanya spasi berlebih di awal, tengah, dan akhir teks. Selain itu, ditemukan beberapa kesalahan ketik (typo) seperti "Bachellor", "Complete", "Yess", "Medum", dan "Free / Reduced".
+
+c. Missing Value dan Karakter Placeholder
+   Selain sel yang benar-benar kosong (""), terdapat berbagai karakter placeholder seperti "N/A", "na", "?", "--", "-", dan "Unknown". Nilai-nilai tersebut perlu dikonversi menjadi NaN terlebih dahulu. Untuk baris dengan variabel target (exam_score) yang kosong sebaiknya dihapus, sedangkan nilai kosong pada fitur lainnya dapat diimputasi menggunakan mean/median atau modus sesuai distribusi datanya.
+
+d. Nilai Teks pada Kolom Numerik
+   Beberapa kolom numerik masih mengandung satuan atau angka yang ditulis dalam bentuk teks, seperti "5 hours", "eighty", "75 points", dan "ninety". Hal ini menyebabkan kolom terbaca bertipe object (string), sehingga perlu dibersihkan dan dikonversi ke tipe numerik (float).
+
+e. Nilai Tidak Valid (Impossible Value)
+   Ditemukan sejumlah nilai yang berada di luar batas kewajaran secara logika, antara lain:
+   - Jam belajar bernilai negatif (-2) atau melebihi batas wajar (25 jam/hari).
+   - Persentase kehadiran bernilai negatif (-5%) atau melebihi 100% (150%).
+   - Durasi tidur 0 jam maupun 18 jam per hari.
+   - Nilai ujian bernilai negatif (-10) atau melebihi 100 (150).
+   Nilai-nilai tidak valid ini sebaiknya diganti menjadi NaN daripada menghapus satu baris penuh, agar informasi valid pada kolom lain di baris yang sama tetap terjaga.
+
+f. Outlier
+   Pada kolom numerik (khususnya previous_score) terdapat nilai ekstrem di luar batas wajar metode Interquartile Range (IQR). Nilai ekstrem tersebut perlu ditangani (misalnya menggunakan metode clipping/capping) agar tidak memengaruhi distribusi data.
+
+g. Transformasi Data (Encoding dan Feature Scaling)
+   Kolom kategorikal perlu diubah ke bentuk numerik menggunakan Ordinal Encoding (untuk fitur bertingkat seperti parental_education dan motivation_level) serta One-Hot Encoding (untuk fitur nominal lainnya). Selanjutnya, fitur numerik perlu disamakan skalanya menggunakan metode Min-Max, Z-Score, dan Robust Scaler.
